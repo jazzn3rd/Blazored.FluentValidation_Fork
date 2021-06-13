@@ -43,7 +43,7 @@ namespace Blazored.FluentValidation
         {
             validator ??= GetValidatorForModel(serviceProvider, editContext.Model, disableAssemblyScanning);
 
-            if (validator is object)
+            if (validator != null)
             {
                 var context = ValidationContext<object>.CreateWithOptions(editContext.Model, fluentValidationValidator.Options ?? (opt => opt.IncludeAllRuleSets()));
 
@@ -72,7 +72,7 @@ namespace Blazored.FluentValidation
 
             validator ??= GetValidatorForModel(serviceProvider, fieldIdentifier.Model, disableAssemblyScanning);
 
-            if (validator is object)
+            if (validator != null)
             {
                 var validationResults = await validator.ValidateAsync(context);
 
@@ -97,6 +97,7 @@ namespace Blazored.FluentValidation
                 }
                 catch (Exception)
                 {
+                    // ignored
                 }
             }
 
@@ -113,6 +114,7 @@ namespace Blazored.FluentValidation
                 }
                 catch (Exception)
                 {
+                    // ignored
                 }
 
                 ScannedAssembly.Add(assembly.FullName);
@@ -162,12 +164,12 @@ namespace Blazored.FluentValidation
                     nextToken = nextToken.Substring(0, nextToken.Length - 1);
                     var prop = obj.GetType().GetProperty("Item");
 
-                    if (prop is object)
+                    if (prop is { })
                     {
                         // we've got an Item property
                         var indexerType = prop.GetIndexParameters()[0].ParameterType;
                         var indexerValue = Convert.ChangeType(nextToken, indexerType);
-                        newObj = prop.GetValue(obj, new object[] { indexerValue });
+                        newObj = prop.GetValue(obj, new[] { indexerValue });
                     }
                     else
                     {
